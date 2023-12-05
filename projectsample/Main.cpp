@@ -15,6 +15,11 @@ int main()
 	RenderWindow window(sf::VideoMode(800, 600), "SNEK: Ultimate Edition");
 
 	Event event;
+	
+	launchlogo(window);
+
+	//Pause
+	bool isPaused = false;
 
 	//Load window icon
 	Image icon;
@@ -31,14 +36,19 @@ int main()
 	if (!bgmusic.openFromFile("power.wav")) {
 		return -1;
 	}
+	Music changetab;
+	if (!changetab.openFromFile("retrochange.wav")) {
+		return -1;
+	}
+	Music playsfx;
+	if (!playsfx.openFromFile("start.wav")) {
+		return -1;
+	}
 	Texture logo;
 	if (!logo.loadFromFile("logo.png")) {
 		return -1;
 	}
 
-	//Loop BGMusic
-	bgmusic.setLoop(true);
-	bgmusic.play();
 
 	//
 	while (window.isOpen())
@@ -50,6 +60,10 @@ int main()
 				window.close();
 			}
 
+			//Loop BGMusic
+			bgmusic.setLoop(true);
+			bgmusic.play();
+
 			//MENU - Title
 			Sprite menulogo;
 			menulogo.setTexture(logo);
@@ -57,7 +71,7 @@ int main()
 			menulogo.setPosition(Vector2f(220.f, 30.f));
 
 			//MENU - Highscore
-			Text hiscore("HI-SCORE: 999", arial, 20);
+			Text hiscore("HI-SCORE: ", arial, 20);
 			hiscore.setFillColor(Color::White);
 			FloatRect hiscoreBounds = hiscore.getLocalBounds();
 			hiscore.setPosition(Vector2f(30.f, 10.f));
@@ -95,6 +109,7 @@ int main()
 				// Check if the mouse position is within the bounds of a shape
 				if (play.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					play.setFillColor(Color::Yellow);
+					changetab.play();
 				}
 				else {
 					play.setFillColor(Color::White);
@@ -103,6 +118,7 @@ int main()
 
 				if (leaderbrd.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					leaderbrd.setFillColor(Color::Yellow);
+					changetab.play();
 				}
 				else {
 					leaderbrd.setFillColor(Color::White);
@@ -111,6 +127,7 @@ int main()
 
 				if (howto.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					howto.setFillColor(Color::Yellow);
+					changetab.play();
 				}
 				else {
 					howto.setFillColor(Color::White);
@@ -119,6 +136,8 @@ int main()
 
 				if (quit.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					quit.setFillColor(Color::Yellow);
+					changetab.play();
+
 				}
 				else {
 					quit.setFillColor(Color::White);
@@ -130,7 +149,18 @@ int main()
 				Vector2i mousePos = Mouse::getPosition(window);
 
 				if (play.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
-					gameEngine(window);
+					bgmusic.stop();
+					playsfx.play();
+					string playerName = entername(window);
+					gameEngine(window, playerName);
+				}
+
+				if (howto.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+					instructions(window);
+				}
+
+				if (quit.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+					window.close();
 				}
 			}
 

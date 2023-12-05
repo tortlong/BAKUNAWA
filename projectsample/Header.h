@@ -46,6 +46,13 @@ void grow(snake*);
 
 bool isbitingSelf(snake*);
 
-int gameEngine(sf::RenderWindow& window);
+int gameEngine(sf::RenderWindow& window, const std::string&);
+
+void launchlogo(sf::RenderWindow& window);
+
+std::string entername(sf::RenderWindow& window);
+
+void instructions(sf::RenderWindow& window);
+
 
 #endif

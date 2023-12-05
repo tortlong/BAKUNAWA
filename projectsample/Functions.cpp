@@ -5,6 +5,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <chrono>
+#include <thread>
 
 #include "Header.h"
 
@@ -62,10 +64,10 @@ void draw_snake(node* sel, sf::RenderWindow& window) {
 
     using namespace std;
     using namespace sf;
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(90);
 
     Texture snakeTex;
-    if (!snakeTex.loadFromFile("scales.png"))
+    if (!snakeTex.loadFromFile("snaketex.png"))
     {
         return;
     }
@@ -164,7 +166,7 @@ int appleError(object apol, node* sel) {
     return 0;
 }
 
-int gameEngine(sf::RenderWindow& window) {
+int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
 
     using namespace std;
     using namespace sf;
@@ -176,8 +178,9 @@ int gameEngine(sf::RenderWindow& window) {
     wemby.direction = 'd';
 
     object apple;
-    apple.x = rand() % 860;
-    apple.y = rand() % 720;
+    apple.x = rand() % 100;
+    apple.y = rand() % 100;
+
 
     //Textures
     Texture appl;
@@ -186,7 +189,7 @@ int gameEngine(sf::RenderWindow& window) {
         return -1;
     }
     Texture desert;
-    if (!desert.loadFromFile("desert.png"))
+    if (!desert.loadFromFile("desertterrain.png"))
     {
         return -1;
     }
@@ -208,15 +211,20 @@ int gameEngine(sf::RenderWindow& window) {
 
     //Fonts
     Font Arial;
-    if (!Arial.loadFromFile("calibri-regular.ttf")) {
+    if (!Arial.loadFromFile("pixeboy.ttf")) {
         return 1;
     }
 
     //Sprites
     Sprite background;
     background.setTexture(desert);
-    background.setScale(1, 1);
+    background.setScale(0.4, 0.4);
     FloatRect titleBounds = background.getLocalBounds();
+
+    //Player Name
+    Text playerNameText(playerName, Arial, 24);
+    playerNameText.setPosition(100,20);
+    playerNameText.setStyle(Text::Bold);
 
     //Score
     Text score("SCORE: " + to_string(sc), Arial, 20);
@@ -227,10 +235,12 @@ int gameEngine(sf::RenderWindow& window) {
 
     //Render Apple
     RectangleShape squares(Vector2f(20, 20));
-    squares.setFillColor(Color::Red);
     squares.setPosition(apple.x, apple.y);
     squares.setTexture(&appl);
 
+    RectangleShape border(Vector2f(400, 300));
+    border.setFillColor(Color::White);
+    border.setOrigin(400, 300);
 
     //Setup SNAKE(wemby)
     init_snake(&wemby.head, &wemby.tail);
@@ -251,12 +261,12 @@ int gameEngine(sf::RenderWindow& window) {
             grow(&wemby);
 
             do {
-                apple.x = rand() % 860;
-                apple.y = rand() % 720;
+                apple.x = rand() % 800;
+                apple.y = rand() % 600;
             } while (appleError(apple, wemby.head));
 
             sc++;
-            score.setString("Score: " + to_string(sc));
+            score.setString("SCORE: " + to_string(sc));
         }
 
         //Check if dead
@@ -264,10 +274,7 @@ int gameEngine(sf::RenderWindow& window) {
         Vector2f head_size = haed.getSize();
         Vector2u window_size = window.getSize();
 
-        bool isEdged = (head_pos.x <= 0) ||
-            (head_pos.x + head_size.x >= window_size.x) ||
-            (head_pos.y <= 0) ||
-            (head_pos.y + head_size.y >= window_size.y);
+        bool isEdged = (head_pos.x <= 0) || (head_pos.x + head_size.x >= window_size.x) || (head_pos.y <= 0) || (head_pos.y + head_size.y >= window_size.y);
 
         if (isEdged || isbitingSelf(&wemby)) {
             wemby.alive = false;
@@ -275,10 +282,12 @@ int gameEngine(sf::RenderWindow& window) {
 
         //render
         window.clear();
-        //window.draw(background);
+        window.draw(background);
         draw_snake(wemby.head, window);
         window.draw(squares);
+        window.draw(playerNameText);
         window.draw(score);
+        window.draw(border);
 
         Sleep(60);
 
@@ -288,4 +297,151 @@ int gameEngine(sf::RenderWindow& window) {
     deadsound.stop();
     deadsound.play();
     return sc;
+}
+
+void launchlogo(sf::RenderWindow& window) {
+    using namespace std;
+    using namespace sf;
+
+
+    Music music;
+    if (!music.openFromFile("start.wav"))
+    {
+        return;
+    }
+    Texture logo;
+    if (!logo.loadFromFile("stellarlogo.png"))
+    {
+        return;
+    }
+    Sprite stellar;
+    stellar.setTexture(logo);
+    stellar.setScale(0.7, 0.7);
+    stellar.setPosition(5, 50);
+    
+    window.draw(stellar);
+    window.display();
+    this_thread::sleep_for(std::chrono::seconds(2));
+    music.stop();
+    music.play();
+
+    bool isFading = true;
+
+    while (isFading) {
+        Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed) {
+                window.close();
+            }
+        }
+
+        Color spriteColor = stellar.getColor();
+
+        // Decrease the alpha value by a small amount
+        spriteColor.a = static_cast<Uint8>(std::max(0, static_cast<int>(spriteColor.a - 1)));
+        stellar.setColor(spriteColor);
+
+        // Check if the sprite is fully transparent
+        if (spriteColor.a == 0) {
+            // End the fade effect
+            isFading = false;
+        }
+
+        window.clear();
+        window.draw(stellar);
+        window.display();
+
+        this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
+    window.clear();
+    window.display();
+}
+
+void instructions(sf::RenderWindow& window) {
+    using namespace std;
+    using namespace sf;
+    
+    Font pix;
+    if (!pix.loadFromFile("pixeboy.ttf")) {
+        return;
+    }
+
+    Text contr("CONTROLS", pix, 40);
+    contr.setFillColor(Color::White);
+    contr.setStyle(Text::Bold);
+    FloatRect contrBounds = contr.getLocalBounds();
+    contr.setPosition(window.getSize().x / 2 - contrBounds.width / 2, window.getSize().y / 2 -160);
+
+    Text howto("HOW TO PLAY", pix, 40);
+    howto.setFillColor(Color::White);
+    howto.setStyle(Text::Bold);
+    FloatRect howtoBounds = howto.getLocalBounds();
+    howto.setPosition(window.getSize().x / 2 - howtoBounds.width / 2, window.getSize().y / 2 - 30);
+
+    while (window.isOpen()) {
+        Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed) {
+                window.close();
+            }
+        }
+
+        window.clear();
+        window.draw(contr);
+        window.draw(howto);
+        window.display();
+    }
+}
+
+std::string entername(sf::RenderWindow& window) {
+    using namespace std;
+    using namespace sf;
+
+    RectangleShape enterNameBox(Vector2f(500.f, 100.f));
+    enterNameBox.setFillColor(Color::Yellow);
+    enterNameBox.setPosition((window.getSize().x - enterNameBox.getSize().x) / 2, (window.getSize().y - enterNameBox.getSize().y) / 2);
+
+    Font font;
+    if (!font.loadFromFile("pixeboy.ttf"))
+    {
+        return "error loading";
+    }
+    Text enterNameText("Enter Your Name:", font, 24);
+    enterNameText.setPosition(enterNameBox.getPosition().x + 10, enterNameBox.getPosition().y + 10);
+
+    Text playerName("", font, 24);
+    playerName.setPosition(enterNameText.getPosition().x, enterNameText.getPosition().y + 40);
+
+    while (window.isOpen()) {
+        Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed) {
+                window.close();
+            }
+
+            if (event.type == Event::TextEntered) {
+                if (event.text.unicode < 128) {
+                    if (event.text.unicode == 13) {  // Enter key
+                        // Handle enter key press, e.g., start the game
+                        return playerName.getString();
+                    }
+                    else if (event.text.unicode == 8 && playerName.getString().getSize() > 0) {  // Backspace key
+                        // Handle backspace key press, remove the last character
+                        playerName.setString(playerName.getString().substring(0, playerName.getString().getSize() - 1));
+                    }
+                    else {
+                        // Append the entered character to the player's name
+                        playerName.setString(playerName.getString() + static_cast<char>(event.text.unicode));
+                    }
+                }
+            }
+        }
+
+        window.clear();
+        window.draw(enterNameBox);
+        window.draw(enterNameText);
+        window.draw(playerName);
+        window.display();
+    }
 }
