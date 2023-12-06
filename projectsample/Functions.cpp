@@ -51,14 +51,12 @@ void init_snake(node** hed, node** tel) {
 
     sel->back = nullptr;
 
-    head->x = 60;
-    head->y = 50;
+    head->x = 300;
+    head->y = 300;
 
     *hed = head;
     *tel = sel;
 }
-
-
 
 void draw_snake(node* sel, sf::RenderWindow& window) {
 
@@ -146,18 +144,17 @@ bool isbitingSelf(snake* snek) {
     return false;
 }
 
-int appleError(object apol, node* sel) {
-
+int appleError(const object& apol, node* sel, const sf::RectangleShape& borderRect) {
     using namespace std;
     using namespace sf;
 
     RectangleShape apple(Vector2f(apol.x, apol.y));
 
     while (sel->back != nullptr) {
-
         RectangleShape head(Vector2f(sel->x, sel->y));
 
-        if (head.getGlobalBounds().intersects(apple.getGlobalBounds())) {
+        if (head.getGlobalBounds().intersects(apple.getGlobalBounds()) ||
+            !borderRect.getGlobalBounds().contains(apple.getPosition())) {
             return 1;
         }
         sel = sel->back;
@@ -165,6 +162,7 @@ int appleError(object apol, node* sel) {
 
     return 0;
 }
+
 
 int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
 
@@ -238,12 +236,21 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     squares.setPosition(apple.x, apple.y);
     squares.setTexture(&appl);
 
+    //for border
     RectangleShape border(Vector2f(400, 300));
-    border.setFillColor(Color::White);
-    border.setOrigin(400, 300);
+    border.setFillColor(Color::Red);
+    border.setPosition((window.getSize().x - border.getSize().x) / 2, (window.getSize().y - border.getSize().y) / 2);
 
     //Setup SNAKE(wemby)
     init_snake(&wemby.head, &wemby.tail);
+    //setInitialPosition(wemby.head, window.getSize(), 75);
+
+    // Define the borderRect
+    sf::RectangleShape borderRect(sf::Vector2f(window.getSize().x - 2 * 100, window.getSize().y-2 * 100));
+    borderRect.setPosition(100, 100);  // Adjust the position based on the border thickness
+    borderRect.setFillColor(sf::Color::Transparent);
+    borderRect.setOutlineThickness(20);  // Adjust the outline thickness
+    borderRect.setOutlineColor(sf::Color::Black);
 
     while (wemby.alive) {
 
@@ -251,10 +258,13 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         setDirection(&wemby);
         move(wemby.head, wemby.tail, wemby.direction);
         squares.setPosition(apple.x, apple.y);
+ 
 
         //Check if eat apple
         RectangleShape haed(Vector2f(20, 20));
         haed.setPosition(wemby.head->x, wemby.head->y);
+
+
         if (haed.getGlobalBounds().intersects(squares.getGlobalBounds())) {
             munch.stop();
             munch.play();
@@ -263,31 +273,47 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
             do {
                 apple.x = rand() % 800;
                 apple.y = rand() % 600;
-            } while (appleError(apple, wemby.head));
+            } while (appleError(apple, wemby.head, borderRect));
 
             sc++;
             score.setString("SCORE: " + to_string(sc));
         }
+
 
         //Check if dead
         Vector2f head_pos = haed.getPosition();
         Vector2f head_size = haed.getSize();
         Vector2u window_size = window.getSize();
 
-        bool isEdged = (head_pos.x <= 0) || (head_pos.x + head_size.x >= window_size.x) || (head_pos.y <= 0) || (head_pos.y + head_size.y >= window_size.y);
+        //bool isEdged = (head_pos.x <= 0) || (head_pos.x + head_size.x >= window_size.x) || (head_pos.y <= 0) || (head_pos.y + head_size.y >= window_size.y ||
+            //haed.getGlobalBounds().intersects(borderRect.getGlobalBounds()));
 
-        if (isEdged || isbitingSelf(&wemby)) {
+        
+
+        // Check if the head is outside the window boundaries or intersects with the border
+        bool isIntersect = false;
+
+        // Check if the head intersects with the border
+        if (head_pos.x < borderRect.getPosition().x ||
+            head_pos.x + head_size.x > borderRect.getPosition().x + borderRect.getSize().x ||
+            head_pos.y < borderRect.getPosition().y ||
+            head_pos.y + head_size.y > borderRect.getPosition().y + borderRect.getSize().y) {
+            isIntersect = true;
+        }
+
+        if (isIntersect || isbitingSelf(&wemby)) {
             wemby.alive = false;
         }
+
 
         //render
         window.clear();
         window.draw(background);
+        window.draw(borderRect);
         draw_snake(wemby.head, window);
         window.draw(squares);
         window.draw(playerNameText);
         window.draw(score);
-        window.draw(border);
 
         Sleep(60);
 
@@ -298,6 +324,9 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     deadsound.play();
     return sc;
 }
+
+
+
 
 void launchlogo(sf::RenderWindow& window) {
     using namespace std;
@@ -399,7 +428,7 @@ std::string entername(sf::RenderWindow& window) {
     using namespace sf;
 
     RectangleShape enterNameBox(Vector2f(500.f, 100.f));
-    enterNameBox.setFillColor(Color::Yellow);
+    enterNameBox.setFillColor(Color::Blue);
     enterNameBox.setPosition((window.getSize().x - enterNameBox.getSize().x) / 2, (window.getSize().y - enterNameBox.getSize().y) / 2);
 
     Font font;

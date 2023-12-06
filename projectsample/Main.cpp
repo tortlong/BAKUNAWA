@@ -77,7 +77,7 @@ int main()
 			hiscore.setPosition(Vector2f(30.f, 10.f));
 
 			//MENU - Options
-			Text play("PLAYER 2", arial, 40);
+			Text play("PLAY", arial, 40);
 			play.setFillColor(Color::White);
 			play.setStyle(Text::Bold);
 			FloatRect playBounds = play.getLocalBounds();
