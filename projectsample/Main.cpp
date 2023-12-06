@@ -49,6 +49,9 @@ int main()
 		return -1;
 	}
 
+			//Loop BGMusic
+			bgmusic.setLoop(true);
+			bgmusic.play();
 
 	//
 	while (window.isOpen())
@@ -60,9 +63,6 @@ int main()
 				window.close();
 			}
 
-			//Loop BGMusic
-			bgmusic.setLoop(true);
-			bgmusic.play();
 
 			//MENU - Title
 			Sprite menulogo;
@@ -156,6 +156,7 @@ int main()
 				}
 
 				if (howto.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+					bgmusic.stop();
 					instructions(window);
 				}
 

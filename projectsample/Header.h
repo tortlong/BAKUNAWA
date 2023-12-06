@@ -54,5 +54,6 @@ std::string entername(sf::RenderWindow& window);
 
 void instructions(sf::RenderWindow& window);
 
+void saveScore(const std::string&, int);
 
 #endif

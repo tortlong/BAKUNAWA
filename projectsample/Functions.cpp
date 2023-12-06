@@ -214,32 +214,41 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     }
 
     //Sprites
-    Sprite background;
+    /*Sprite background;
     background.setTexture(desert);
     background.setScale(0.4, 0.4);
-    FloatRect titleBounds = background.getLocalBounds();
+    FloatRect titleBounds = background.getLocalBounds();*/
+    sf::Color brownColor(139, 69, 19);
+    RectangleShape background(Vector2f(800, 600));
+    background.setFillColor(brownColor);
+
+    //border
+    RectangleShape border(Vector2f(700, 500));
+    border.setTexture(&desert);
+    //border.setFillColor(Color::Black);
+    border.setPosition((window.getSize().x - border.getSize().x) / 2, (window.getSize().y - border.getSize().y) / 2);
 
     //Player Name
-    Text playerNameText(playerName, Arial, 24);
-    playerNameText.setPosition(100,20);
+    Text playerNameText(playerName, Arial, 30);
+    playerNameText.setPosition(100,10);
     playerNameText.setStyle(Text::Bold);
 
     //Score
-    Text score("SCORE: " + to_string(sc), Arial, 20);
+    Text score("SCORE: " + to_string(sc), Arial, 30);
     score.setFillColor(Color::White);
     score.setStyle(Text::Bold);
     FloatRect scoreBounds = score.getLocalBounds();
-    score.setPosition(690, 20);
+    score.setPosition(600, 10);
 
     //Render Apple
-    RectangleShape squares(Vector2f(20, 20));
+    RectangleShape squares(Vector2f(30, 30));
     squares.setPosition(apple.x, apple.y);
     squares.setTexture(&appl);
 
-    //for border
     RectangleShape border(Vector2f(400, 300));
-    border.setFillColor(Color::Red);
-    border.setPosition((window.getSize().x - border.getSize().x) / 2, (window.getSize().y - border.getSize().y) / 2);
+    border.setFillColor(Color::White);
+    border.setOrigin(400, 300);
+
 
     //Setup SNAKE(wemby)
     init_snake(&wemby.head, &wemby.tail);
@@ -263,8 +272,6 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         //Check if eat apple
         RectangleShape haed(Vector2f(20, 20));
         haed.setPosition(wemby.head->x, wemby.head->y);
-
-
         if (haed.getGlobalBounds().intersects(squares.getGlobalBounds())) {
             munch.stop();
             munch.play();
@@ -273,7 +280,7 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
             do {
                 apple.x = rand() % 800;
                 apple.y = rand() % 600;
-            } while (appleError(apple, wemby.head, borderRect));
+            } while (appleError(apple, wemby.head));
 
             sc++;
             score.setString("SCORE: " + to_string(sc));
@@ -309,13 +316,12 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         //render
         window.clear();
         window.draw(background);
-        window.draw(borderRect);
         draw_snake(wemby.head, window);
         window.draw(squares);
         window.draw(playerNameText);
         window.draw(score);
 
-        Sleep(60);
+        Sleep(10);
 
         window.display();
 
@@ -396,17 +402,22 @@ void instructions(sf::RenderWindow& window) {
         return;
     }
 
+    Text back("BACK", pix, 20);
+    back.setFillColor(Color::White);
+    back.setStyle(Text::Bold);
+    back.setPosition(30,20);
+
     Text contr("CONTROLS", pix, 40);
-    contr.setFillColor(Color::White);
+    contr.setFillColor(Color::Yellow);
     contr.setStyle(Text::Bold);
     FloatRect contrBounds = contr.getLocalBounds();
-    contr.setPosition(window.getSize().x / 2 - contrBounds.width / 2, window.getSize().y / 2 -160);
+    contr.setPosition(window.getSize().x / 2 - contrBounds.width / 2, window.getSize().y / 2 -200);
 
     Text howto("HOW TO PLAY", pix, 40);
-    howto.setFillColor(Color::White);
+    howto.setFillColor(Color::Yellow);
     howto.setStyle(Text::Bold);
     FloatRect howtoBounds = howto.getLocalBounds();
-    howto.setPosition(window.getSize().x / 2 - howtoBounds.width / 2, window.getSize().y / 2 - 30);
+    howto.setPosition(window.getSize().x / 2 - howtoBounds.width / 2, window.getSize().y / 2 - 10);
 
     while (window.isOpen()) {
         Event event;
@@ -415,8 +426,15 @@ void instructions(sf::RenderWindow& window) {
                 window.close();
             }
         }
+        if (event.type == Event::MouseButtonPressed) {
+            Vector2i mousePos = Mouse::getPosition(window);
 
+            if (back.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+                return;
+            }
+        }
         window.clear();
+        window.draw(back);
         window.draw(contr);
         window.draw(howto);
         window.display();
@@ -474,3 +492,16 @@ std::string entername(sf::RenderWindow& window) {
         window.display();
     }
 }
+
+void saveScore(const std::string& playerName, int score) {
+    std::ofstream leaderboardFile("leaderboard.txt", std::ios::app);
+
+    if (leaderboardFile.is_open()) {
+        leaderboardFile << playerName << " " << score << "\n";
+        leaderboardFile.close();
+    }
+    else {
+        return;
+    }
+}
+
