@@ -1,10 +1,3 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-#include <windows.h>
-#include <conio.h>
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include "Header.h"
 
 using namespace std;
@@ -20,6 +13,8 @@ int main()
 
 	//Pause
 	bool isPaused = false;
+
+	int score = 0;
 
 	//Load window icon
 	Image icon;
@@ -49,6 +44,9 @@ int main()
 		return -1;
 	}
 
+			//Loop BGMusic
+			bgmusic.setLoop(true);
+			bgmusic.play();
 
 	//
 	while (window.isOpen())
@@ -71,7 +69,7 @@ int main()
 			menulogo.setPosition(Vector2f(220.f, 30.f));
 
 			//MENU - Highscore
-			Text hiscore("HI-SCORE: ", arial, 20);
+			Text hiscore("HI-SCORE: " + to_string(score), arial, 25);
 			hiscore.setFillColor(Color::White);
 			FloatRect hiscoreBounds = hiscore.getLocalBounds();
 			hiscore.setPosition(Vector2f(30.f, 10.f));
@@ -150,11 +148,17 @@ int main()
 
 				if (play.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					bgmusic.stop();
-					playsfx.play();
-					string playerName = entername(window);
-					gameEngine(window, playerName);
+					string playerName = entername(window, score);
+					if (playerName != "cancelled") {
+						playsfx.play();
+						score = gameEngine(window, playerName);
+						saveScore(playerName, score);
+					}
 				}
 
+				if (leaderbrd.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+					displayLeaderboard(window);
+				}
 				if (howto.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					instructions(window);
 				}
