@@ -49,6 +49,9 @@ int main()
 		return -1;
 	}
 
+			//Loop BGMusic
+			bgmusic.setLoop(true);
+			bgmusic.play();
 
 	//
 	while (window.isOpen())
@@ -60,9 +63,6 @@ int main()
 				window.close();
 			}
 
-			//Loop BGMusic
-			bgmusic.setLoop(true);
-			bgmusic.play();
 
 			//MENU - Title
 			Sprite menulogo;
@@ -77,7 +77,7 @@ int main()
 			hiscore.setPosition(Vector2f(30.f, 10.f));
 
 			//MENU - Options
-			Text play("PLAYER 1", arial, 40);
+			Text play("PLAY", arial, 40);
 			play.setFillColor(Color::White);
 			play.setStyle(Text::Bold);
 			FloatRect playBounds = play.getLocalBounds();
@@ -156,6 +156,7 @@ int main()
 				}
 
 				if (howto.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+					bgmusic.stop();
 					instructions(window);
 				}
 
