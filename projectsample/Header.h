@@ -14,17 +14,21 @@
 #include <vector>
 #include <algorithm>
 
-class node {
-public:
-    int x, y;
-    node* back;
-    node* front;
-};
-
-struct object {
+using namespace sf;
+struct object : public RectangleShape {
 public:
     int x;
     int y;
+
+    object();
+    object(RectangleShape);
+    object(int, int);
+};
+
+class node : public object{
+public:
+    node* back;
+    node* front;
 };
 
 class snake {
@@ -39,6 +43,7 @@ public:
     void grow();
     void draw(sf::RenderWindow&);
     bool isbitingSelf();
+    bool intersects(object);
 };
 
 class difficulty {

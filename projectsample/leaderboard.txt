@@ -19,3 +19,8 @@ dsa 0
 sda 0
 sd 3
 sda 0
+gelo 7
+Gelo 25
+asd 8
+gelo 6
+ads 0

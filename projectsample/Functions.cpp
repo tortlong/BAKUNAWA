@@ -5,7 +5,7 @@ using namespace sf;
 
 snake :: snake() {
 
-    head = new(node);
+    head = new node();
     head->front = nullptr;
 
     node* sel = head;
@@ -81,8 +81,9 @@ void snake :: draw(sf::RenderWindow& window) {
 
 void snake :: grow() {
 
-    for (int i = 0; i < 2; i++) {
-        node* nyo = new(node);
+    for (int i = 0; i < 8; i++) {
+
+        node* nyo = new node();
         tail->back = nyo;
         tail->back->front = tail;
         tail->back->back = nullptr;
@@ -132,14 +133,25 @@ bool snake :: isbitingSelf() {
     return false;
 }
 
-int appleError(object apol, node* sel) {
-    RectangleShape apple(Vector2f(apol.x, apol.y));
+object :: object () {
+    
+}
+object :: object (RectangleShape border){
+    x = border.getPosition().x + rand() % int(border.getSize().x);
+    y = border.getPosition().y + rand() % int(border.getSize().y);
+}
+object :: object(int a, int b) {
+    x = a;
+    y = b;
+}
 
-    while (sel->back != nullptr) {
+bool snake :: intersects(object apple){
 
-        RectangleShape head(Vector2f(sel->x, sel->y));
+    node* sel = head;
 
-        if (head.getGlobalBounds().intersects(apple.getGlobalBounds())) {
+    while (sel != nullptr) {
+        
+        if (sel->getGlobalBounds().intersects(apple.getGlobalBounds())) {
             return 1;
         }
         sel = sel->back;
@@ -147,6 +159,7 @@ int appleError(object apol, node* sel) {
 
     return 0;
 }
+
 
 int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     int sc = 0;
@@ -201,9 +214,7 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     //border.setFillColor(Color::Black);
     border.setPosition((window.getSize().x - border.getSize().x) / 2, (window.getSize().y - border.getSize().y) / 2);
 
-    object apple;
-    apple.x = border.getPosition().x + rand() % int(border.getSize().x);
-    apple.y = border.getPosition().y + rand() % int(border.getSize().y);
+    object apple(border);
 
     //Player Name
     Text playerNameText(playerName, Arial, 30);
@@ -240,10 +251,10 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
             munch.play();
             wemby.grow();
 
-            /*do{*/
+            do{
                 apple.x = border.getPosition().x + rand() % int(border.getSize().x);
                 apple.y = border.getPosition().y + rand() % int(border.getSize().y);
-            /*} while (appleError(apple, wemby.head));*/
+            } while (wemby.intersects(apple));
 
             sc++;
             score.setString("SCORE: " + to_string(sc));
