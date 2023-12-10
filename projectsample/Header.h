@@ -63,12 +63,15 @@ bool isbitingSelf(snake*);
 
 int gameEngine(sf::RenderWindow&, const std::string&);
 
+int gameOver(sf::RenderWindow&);
+
 void launchlogo(sf::RenderWindow&);
 
 std::string entername(sf::RenderWindow&, int);
 
 void instructions(sf::RenderWindow&);
 
+void saveScore(const std::string&, int);
 
 bool compareScores(const scoreEntry&, const scoreEntry&);
 

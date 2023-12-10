@@ -146,6 +146,9 @@
     <Image Include="..\..\..\..\Downloads\desert.png" />
     <Image Include="..\..\..\..\Downloads\scales.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="leaderboard.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
