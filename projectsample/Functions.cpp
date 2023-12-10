@@ -3,7 +3,33 @@
 using namespace std;
 using namespace sf;
 
-void move(node* head, node* tail, char direction) {
+snake :: snake() {
+
+    head = new(node);
+    head->front = nullptr;
+
+    node* sel = head;
+
+    for (int i = 0; i < 10; i++) {
+        sel->back = new(node);
+        sel->back->front = sel;
+        sel = sel->back;
+
+        sel->x = 50;
+        sel->y = 50;
+    }
+
+    sel->back = nullptr;
+
+    head->x = 60;
+    head->y = 50;
+
+    tail = sel;
+    alive = true;
+    direction = 'd';
+}
+
+void snake :: move() {
 
     node* sel = tail;
 
@@ -25,34 +51,7 @@ void move(node* head, node* tail, char direction) {
 
 }
 
-void init_snake(node** hed, node** tel) {
-
-    node* head = new(node);
-    head->front = nullptr;
-
-    node* sel = head;
-
-    for (int i = 0; i < 10; i++) {
-        sel->back = new(node);
-        sel->back->front = sel;
-        sel = sel->back;
-
-        sel->x = 50;
-        sel->y = 50;
-    }
-
-    sel->back = nullptr;
-
-    head->x = 60;
-    head->y = 50;
-
-    *hed = head;
-    *tel = sel;
-}
-
-
-
-void draw_snake(node* sel, sf::RenderWindow& window) {
+void snake :: draw(sf::RenderWindow& window) {
 
 
     window.setFramerateLimit(90);
@@ -69,12 +68,28 @@ void draw_snake(node* sel, sf::RenderWindow& window) {
     squares.setPosition(600, 400);
     squares.setTexture(&snakeTex);
 
+    node* sel = head;
     while (sel != nullptr) {
 
         squares.setPosition(sel->x, sel->y);
         window.draw(squares);
 
         sel = sel->back;
+    }
+
+}
+
+void snake :: grow() {
+
+    for (int i = 0; i < 2; i++) {
+        node* nyo = new(node);
+        tail->back = nyo;
+        tail->back->front = tail;
+        tail->back->back = nullptr;
+
+        tail = nyo;
+        tail->x = tail->front->x;
+        tail->y = tail->front->y;
     }
 
 }
@@ -98,28 +113,13 @@ void setDirection(snake* snek) {
     }
 }
 
-void grow(snake* snek) {
-
-    for (int i = 0; i < 2; i++) {
-        node* nyo = new(node);
-        snek->tail->back = nyo;
-        snek->tail->back->front = snek->tail;
-        snek->tail->back->back = nullptr;
-
-        snek->tail = nyo;
-        snek->tail->x = snek->tail->front->x;
-        snek->tail->y = snek->tail->front->y;
-    }
-
-}
-
-bool isbitingSelf(snake* snek) {
+bool snake :: isbitingSelf() {
     RectangleShape haed(Vector2f(20, 20));
     RectangleShape body(Vector2f(20, 20));
 
-    haed.setPosition(snek->head->x, snek->head->y);
+    haed.setPosition(head->x,head->y);
 
-    node* sel = snek->head->back->back->back->back;
+    node* sel = head->back->back->back->back;
     while (sel != nullptr) {
 
         body.setPosition(sel->x, sel->y);
@@ -152,10 +152,6 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     int sc = 0;
 
     snake wemby;
-    wemby.alive = true;
-    wemby.direction = 'd';
-
-
 
     //Textures
     Texture appl;
@@ -228,13 +224,12 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     squares.setTexture(&appl);
 
     //Setup SNAKE(wemby)
-    init_snake(&wemby.head, &wemby.tail);
 
     while (wemby.alive) {
 
         //
         setDirection(&wemby);
-        move(wemby.head, wemby.tail, wemby.direction);
+        wemby.move();
         squares.setPosition(apple.x, apple.y);
 
         //Check if eat apple
@@ -243,7 +238,7 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         if (haed.getGlobalBounds().intersects(squares.getGlobalBounds())) {
             munch.stop();
             munch.play();
-            grow(&wemby);
+            wemby.grow();
 
             /*do{*/
                 apple.x = border.getPosition().x + rand() % int(border.getSize().x);
@@ -269,7 +264,7 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
             isIntersect = true;
         }
 
-        if (isIntersect || isbitingSelf(&wemby)) {
+        if (isIntersect || wemby.isbitingSelf()) {
             wemby.alive = false;
             deadsound.play();
             int result = gameOver(window);
@@ -284,7 +279,7 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         window.clear();
         window.draw(background);
         window.draw(border);
-        draw_snake(wemby.head, window);
+        wemby.draw(window);
         window.draw(squares);
         window.draw(playerNameText);
         window.draw(score);
@@ -589,8 +584,4 @@ void displayLeaderboard(sf::RenderWindow& window) {
     else {
         return;
     }
-}
-
-void generateApple() {
-
 }

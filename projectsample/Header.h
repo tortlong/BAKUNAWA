@@ -32,8 +32,13 @@ public:
     node* head;
     node* tail;
     char direction;
-    int size;
     bool alive;
+
+    snake();
+    void move();
+    void grow();
+    void draw(sf::RenderWindow&);
+    bool isbitingSelf();
 };
 
 class difficulty {
@@ -47,19 +52,10 @@ struct scoreEntry {
     int score;
 };
 
-void move(node*, node*, char);
-
-void init_snake(node**, node**);
-
-void draw_snake(node*, sf::RenderWindow&);
 
 void setDirection(snake*);
 
 void appleCheck(snake*, object*);
-
-void grow(snake*);
-
-bool isbitingSelf(snake*);
 
 int gameEngine(sf::RenderWindow&, const std::string&);
 

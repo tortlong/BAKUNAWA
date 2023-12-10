@@ -14,3 +14,8 @@ apl d ap 1
 apl d ap 60
 yessir 13
 randall 0
+asd 0
+dsa 0
+sda 0
+sd 3
+sda 0
