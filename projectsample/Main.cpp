@@ -1,10 +1,3 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-#include <windows.h>
-#include <conio.h>
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include "Header.h"
 
 using namespace std;
@@ -12,26 +5,29 @@ using namespace sf;
 
 int main()
 {
-	RenderWindow window(sf::VideoMode(800, 600), "SNEK: Ultimate Edition");
+	RenderWindow window(sf::VideoMode(800, 600), "Bakunawa and the Infinite Moons");
 
 	Event event;
 	
+	//Load window icon
+	Image icon;
+	if (icon.loadFromFile("bakulogo.png")) {
+		window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+	}
+
 	launchlogo(window);
 
 	//Pause
 	bool isPaused = false;
 
-	//Load window icon
-	Image icon;
-	if (icon.loadFromFile("logo.png")) {
-		window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
-	}
+	int score = 0;
 
 	//Load Assets
 	Font arial;
 	if (!arial.loadFromFile("pixeboy.ttf")) {
 		return -1;
 	}
+
 	Music bgmusic;
 	if (!bgmusic.openFromFile("power.wav")) {
 		return -1;
@@ -44,14 +40,25 @@ int main()
 	if (!playsfx.openFromFile("start.wav")) {
 		return -1;
 	}
+
 	Texture logo;
-	if (!logo.loadFromFile("logo.png")) {
+	if (!logo.loadFromFile("mainmenulogo.png")) {
+		return -1;
+	}
+	Texture desert;
+	if (!desert.loadFromFile("night.png"))
+	{
+		return -1;
+	}
+	Texture bgbutt;
+	if (!bgbutt.loadFromFile("musicbutton.png"))
+	{
 		return -1;
 	}
 
-			//Loop BGMusic
-			bgmusic.setLoop(true);
-			bgmusic.play();
+	//Loop BGMusic
+	bgmusic.setLoop(true);
+	bgmusic.play();
 
 	//
 	while (window.isOpen())
@@ -62,16 +69,23 @@ int main()
 			{
 				window.close();
 			}
-			//ye
 
 			//MENU - Title
 			Sprite menulogo;
 			menulogo.setTexture(logo);
-			menulogo.setScale(9,9);
-			menulogo.setPosition(Vector2f(220.f, 30.f));
+			menulogo.setScale(1,1);
+			//menulogo.setPosition(Vector2f(220.f, 30.f));
+
+			RectangleShape bg(Vector2f(800, 600));
+			bg.setTexture(&desert);
+
+			Sprite bgmusicbutton;
+			bgmusicbutton.setTexture(bgbutt);
+			bgmusicbutton.setScale(1, 1);
+			bgmusicbutton.setPosition(Vector2f(730.f, 15.f));
 
 			//MENU - Highscore
-			Text hiscore("HI-SCORE: ", arial, 20);
+			Text hiscore("HI-SCORE: " + to_string(score), arial, 25);
 			hiscore.setFillColor(Color::White);
 			FloatRect hiscoreBounds = hiscore.getLocalBounds();
 			hiscore.setPosition(Vector2f(30.f, 10.f));
@@ -150,11 +164,19 @@ int main()
 
 				if (play.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					bgmusic.stop();
-					playsfx.play();
-					string playerName = entername(window);
-					gameEngine(window, playerName);
+					string playerName = entername(window, score);
+					if (playerName != "cancelled") {
+						playsfx.play();
+						introStory(window);
+						score = gameEngine(window, playerName);
+						saveScore(playerName, score);
+					}
 				}
 
+				if (leaderbrd.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+					bgmusic.stop();
+					displayLeaderboard(window);
+				}
 				if (howto.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					bgmusic.stop();
 					instructions(window);
@@ -163,14 +185,24 @@ int main()
 				if (quit.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					window.close();
 				}
+
+				if (bgmusicbutton.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+					bgmusic.stop();
+				}
+			}
+
+			if (bgmusic.getStatus() == Music::Stopped) {
+				bgmusic.play();
 			}
 
 
 			window.clear();
 
+			window.draw(bg);
 			window.draw(menulogo);
 			window.draw(play);
 			window.draw(hiscore);
+			window.draw(bgmusicbutton);
 			window.draw(leaderbrd);
 			window.draw(howto);
 			window.draw(quit);

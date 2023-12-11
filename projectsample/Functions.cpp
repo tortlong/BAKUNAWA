@@ -68,15 +68,14 @@ void draw_snake(node* sel, sf::RenderWindow& window) {
     window.setFramerateLimit(90);
 
     Texture snakeTex;
-    if (!snakeTex.loadFromFile("snaketex.png"))
+    if (!snakeTex.loadFromFile("bakunawatex.png"))
     {
         return;
     }
 
     //for rendering snake
     RectangleShape squares(Vector2f(20, 20));
-    squares.setFillColor(Color::Green);
-    squares.setPosition(600, 400);
+    squares.setPosition(600, 300);
     squares.setTexture(&snakeTex);
 
     while (sel != nullptr) {
@@ -112,7 +111,7 @@ void setDirection(snake* snek) {
 
 void grow(snake* snek) {
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 10; i++) {
         node* nyo = new(node);
         snek->tail->back = nyo;
         snek->tail->back->front = snek->tail;
@@ -167,6 +166,22 @@ int appleError(object apol, node* sel) {
     return 0;
 }
 
+void introStory(sf::RenderWindow& window) {
+    Texture introbg;
+    if (!introbg.loadFromFile("intro.png")) {
+        return;
+    }
+
+    Sprite bg;
+    bg.setTexture(introbg);
+    bg.setScale(1, 1);
+
+    window.clear();
+    window.draw(bg);
+    window.display();
+    sleep(seconds(10));
+}
+
 int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
 
     using namespace std;
@@ -185,12 +200,12 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
 
     //Textures
     Texture appl;
-    if (!appl.loadFromFile("apolreal.png"))
+    if (!appl.loadFromFile("MOON.png"))
     {
         return -1;
     }
     Texture desert;
-    if (!desert.loadFromFile("desertterrain.png"))
+    if (!desert.loadFromFile("night.png"))
     {
         return -1;
     }
@@ -223,7 +238,7 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     FloatRect titleBounds = background.getLocalBounds();*/
     sf::Color brownColor(139, 69, 19);
     RectangleShape background(Vector2f(800, 600));
-    background.setFillColor(brownColor);
+    background.setFillColor(Color::Black);
 
     //border
     RectangleShape border(Vector2f(700, 500));
@@ -298,7 +313,7 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         window.draw(playerNameText);
         window.draw(score);
 
-        Sleep(10);
+        Sleep(50);
 
         window.display();
 
@@ -308,11 +323,46 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     return sc;
 }
 
+    Texture gobg;
+    if (!gobg.loadFromFile("gameoverbg.png")) {
+        return -1;
+    }
+
+    Sprite bg;
+    bg.setTexture(gobg);
+    bg.setScale(1, 1);
+
+    /*Text gameOverText("GAME OVER", font, 100);
+    gameOverText.setFillColor(Color::Yellow);
+    gameOverText.setPosition((window.getSize().x - gameOverText.getLocalBounds().width) / 2, (window.getSize().y - gameOverText.getLocalBounds().height) / 2 - 100);*/
+
+    Text restart("RETRY", font, 40);
+    restart.setStyle(Text::Bold);
+    restart.setPosition((window.getSize().x - restart.getLocalBounds().width) / 2, (window.getSize().y - restart.getLocalBounds().height) / 2 + 60);
+
+    Text returnmm("QUIT", font, 40);
+    returnmm.setStyle(Text::Bold);
+    returnmm.setPosition((window.getSize().x - returnmm.getLocalBounds().width) / 2, (window.getSize().y - returnmm.getLocalBounds().height) / 2 + 110);
+
+    while (window.isOpen()) {
+        Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed) {
+                window.close();
+            }
+            if (event.type == Event::MouseButtonPressed) {
+                Vector2i mousePos = Mouse::getPosition(window);
+
+
+        window.clear();
+        window.draw(bg);
+        window.draw(restart);
+        window.draw(returnmm);
+        window.display();
+    }
+}
+
 void launchlogo(sf::RenderWindow& window) {
-    using namespace std;
-    using namespace sf;
-
-
     Music music;
     if (!music.openFromFile("start.wav"))
     {
@@ -376,12 +426,31 @@ void instructions(sf::RenderWindow& window) {
         return;
     }
 
-    Text back("BACK", pix, 20);
+    Texture backbutton;
+    if (!backbutton.loadFromFile("back.png")) {
+        return;
+    }
+
+    Texture htbg;
+    if (!htbg.loadFromFile("howtobg.png")) {
+        return;
+    }
+
+    Sprite bg;
+    bg.setTexture(htbg);
+    bg.setScale(1, 1);
+
+    Sprite goBack;
+    goBack.setTexture(backbutton);
+    goBack.setScale(2, 2);
+    goBack.setPosition(30, 10);
+
+    /*Text back("BACK", pix, 20);
     back.setFillColor(Color::White);
     back.setStyle(Text::Bold);
-    back.setPosition(30,20);
+    back.setPosition(30, 20);*/
 
-    Text contr("CONTROLS", pix, 40);
+    /*Text contr("CONTROLS", pix, 40);
     contr.setFillColor(Color::Yellow);
     contr.setStyle(Text::Bold);
     FloatRect contrBounds = contr.getLocalBounds();
@@ -391,7 +460,7 @@ void instructions(sf::RenderWindow& window) {
     howto.setFillColor(Color::Yellow);
     howto.setStyle(Text::Bold);
     FloatRect howtoBounds = howto.getLocalBounds();
-    howto.setPosition(window.getSize().x / 2 - howtoBounds.width / 2, window.getSize().y / 2 - 10);
+    howto.setPosition(window.getSize().x / 2 - howtoBounds.width / 2, window.getSize().y / 2 - 10);*/
 
     while (window.isOpen()) {
         Event event;
@@ -403,36 +472,50 @@ void instructions(sf::RenderWindow& window) {
         if (event.type == Event::MouseButtonPressed) {
             Vector2i mousePos = Mouse::getPosition(window);
 
-            if (back.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+            if (goBack.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
                 return;
             }
         }
         window.clear();
-        window.draw(back);
-        window.draw(contr);
-        window.draw(howto);
+        window.draw(bg);
+        window.draw(goBack);
         window.display();
     }
 }
 
-std::string entername(sf::RenderWindow& window) {
-    using namespace std;
-    using namespace sf;
-
-    RectangleShape enterNameBox(Vector2f(500.f, 100.f));
-    enterNameBox.setFillColor(Color::Blue);
-    enterNameBox.setPosition((window.getSize().x - enterNameBox.getSize().x) / 2, (window.getSize().y - enterNameBox.getSize().y) / 2);
+string entername(sf::RenderWindow& window, int score) {
 
     Font font;
     if (!font.loadFromFile("pixeboy.ttf"))
     {
         return "error loading";
     }
+
+    Color gray(128, 128, 128);
+    RectangleShape enterNameBox(Vector2f(500.f, 80.f));
+    enterNameBox.setFillColor(gray);
+    enterNameBox.setPosition((window.getSize().x - enterNameBox.getSize().x) / 2, (window.getSize().y - enterNameBox.getSize().y) / 2);
+
+    Texture enternamebg;
+    if (!enternamebg.loadFromFile("enternamebg.png")) {
+        return "error loading texture";
+    }
+
+    Sprite bg;
+    bg.setTexture(enternamebg);
+    bg.setScale(1, 1);
+
     Text enterNameText("Enter Your Name:", font, 24);
     enterNameText.setPosition(enterNameBox.getPosition().x + 10, enterNameBox.getPosition().y + 10);
 
-    Text playerName("", font, 24);
-    playerName.setPosition(enterNameText.getPosition().x, enterNameText.getPosition().y + 40);
+    Text playerName("", font, 45);
+    playerName.setFillColor(Color::Black);
+    playerName.setPosition(enterNameText.getPosition().x+80, enterNameText.getPosition().y-5);
+    
+    Text back("CANCEL", font, 20);
+    back.setFillColor(Color::White);
+    back.setStyle(Text::Bold);
+    back.setPosition(enterNameBox.getPosition().x + 430, enterNameBox.getPosition().y + 80);
 
     while (window.isOpen()) {
         Event event;
@@ -460,8 +543,8 @@ std::string entername(sf::RenderWindow& window) {
         }
 
         window.clear();
+        window.draw(bg);
         window.draw(enterNameBox);
-        window.draw(enterNameText);
         window.draw(playerName);
         window.display();
     }
@@ -479,3 +562,91 @@ void saveScore(const std::string& playerName, int score) {
     }
 }
 
+bool compareScores(const scoreEntry& a, const scoreEntry& b) {
+    return a.score > b.score;
+}
+
+void displayLeaderboard(sf::RenderWindow& window) {
+    std::ifstream leaderboardFile("leaderboard.txt");
+
+    if (leaderboardFile.is_open()) {
+        std::vector<scoreEntry> leaderboard;
+
+        std::string name;
+        int score;
+
+        while (leaderboardFile >> name >> score) {
+            leaderboard.push_back({ name, score });
+        }
+
+        leaderboardFile.close();
+
+        // Sort the leaderboard entries by score (descending order)
+        std::sort(leaderboard.begin(), leaderboard.end(), compareScores);
+
+        // Display the leaderboard entries
+        Font font;
+        if (font.loadFromFile("pixeboy.ttf")) {
+
+            /*Text ldtitle("LEADERBOARD", font, 40);
+            ldtitle.setFillColor(Color::Yellow);
+            ldtitle.setStyle(Text::Bold);
+            FloatRect ldtitleBounds = ldtitle.getLocalBounds();
+            ldtitle.setPosition(window.getSize().x / 2 - ldtitleBounds.width / 2, window.getSize().y / 2 - 200);*/
+
+            Texture backbutton;
+            if (!backbutton.loadFromFile("back.png")) {
+                return;
+            }
+
+            Texture lbbg;
+            if (!lbbg.loadFromFile("leadbbg.png")) {
+                return;
+            }
+
+            Sprite bg;
+            bg.setTexture(lbbg);
+            bg.setScale(1, 1);
+
+            Sprite goBack;
+            goBack.setTexture(backbutton);
+            goBack.setScale(2, 2);
+            goBack.setPosition(30, 10);
+
+            Text leaderboardText("", font, 30);
+            FloatRect ldBounds = leaderboardText.getLocalBounds();
+            leaderboardText.setPosition(window.getSize().x / 2 - 100, window.getSize().y / 2 - 120);
+
+            for (const auto& entry : leaderboard) {
+                leaderboardText.setString(leaderboardText.getString() + entry.name + ": " + to_string(entry.score) + "\n");
+            }
+
+            while (window.isOpen()) {
+                Event event;
+                while (window.pollEvent(event)) {
+                    if (event.type == Event::Closed) {
+                        window.close();
+                    }
+                }
+                if (event.type == Event::MouseButtonPressed) {
+                    Vector2i mousePos = Mouse::getPosition(window);
+
+                    if (goBack.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+                        return;
+                    }
+                }
+                window.clear();
+                window.draw(bg);
+                window.draw(goBack);
+                window.draw(leaderboardText);
+                window.display();
+            }
+        }
+        else {
+            return;
+        }
+    }
+    else {
+        return;
+    }
+}

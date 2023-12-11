@@ -1,7 +1,18 @@
 #pragma once
 #ifndef MYHEADER_H
 #define MYHEADER_H
-
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
+#include <conio.h>
+#include <chrono>
+#include <thread>
+#include <fstream>
+#include <vector>
+#include <algorithm>
 
 class node {
 public:
@@ -31,12 +42,16 @@ public:
     int growth;
 };
 
+struct scoreEntry {
+    std::string name;
+    int score;
+};
 
 void move(node*, node*, char);
 
 void init_snake(node**, node**);
 
-void draw_snake(node*, sf::RenderWindow& window);
+void draw_snake(node*, sf::RenderWindow&);
 
 void setDirection(snake*);
 
@@ -46,14 +61,22 @@ void grow(snake*);
 
 bool isbitingSelf(snake*);
 
-int gameEngine(sf::RenderWindow& window, const std::string&);
+int gameEngine(sf::RenderWindow&, const std::string&);
 
-void launchlogo(sf::RenderWindow& window);
+int gameOver(sf::RenderWindow&);
 
-std::string entername(sf::RenderWindow& window);
+void launchlogo(sf::RenderWindow&);
 
-void instructions(sf::RenderWindow& window);
+std::string entername(sf::RenderWindow&, int);
+
+void instructions(sf::RenderWindow&);
 
 void saveScore(const std::string&, int);
+
+bool compareScores(const scoreEntry&, const scoreEntry&);
+
+void displayLeaderboard(sf::RenderWindow&);
+
+void introStory(sf::RenderWindow&);
 
 #endif
