@@ -1,16 +1,7 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-#include <windows.h>
-#include <conio.h>
-#include <iostream>
-#include <fstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <chrono>
-#include <thread>
-
 #include "Header.h"
 
+using namespace std;
+using namespace sf;
 
 void move(node* head, node* tail, char direction) {
 
@@ -63,8 +54,7 @@ void init_snake(node** hed, node** tel) {
 
 void draw_snake(node* sel, sf::RenderWindow& window) {
 
-    using namespace std;
-    using namespace sf;
+
     window.setFramerateLimit(90);
 
     Texture snakeTex;
@@ -89,8 +79,6 @@ void draw_snake(node* sel, sf::RenderWindow& window) {
 }
 
 void setDirection(snake* snek) {
-    using namespace std;
-    using namespace sf;
     if (Keyboard::isKeyPressed(Keyboard::W)) {
         if (snek->direction != 's')
             snek->direction = 'w';
@@ -125,9 +113,6 @@ void grow(snake* snek) {
 }
 
 bool isbitingSelf(snake* snek) {
-    using namespace std;
-    using namespace sf;
-
     RectangleShape haed(Vector2f(20, 20));
     RectangleShape body(Vector2f(20, 20));
 
@@ -147,10 +132,6 @@ bool isbitingSelf(snake* snek) {
 }
 
 int appleError(object apol, node* sel) {
-
-    using namespace std;
-    using namespace sf;
-
     RectangleShape apple(Vector2f(apol.x, apol.y));
 
     while (sel->back != nullptr) {
@@ -183,19 +164,12 @@ void introStory(sf::RenderWindow& window) {
 }
 
 int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
-
-    using namespace std;
-    using namespace sf;
-
     int sc = 0;
 
     snake wemby;
     wemby.alive = true;
     wemby.direction = 'd';
 
-    object apple;
-    apple.x = rand() % 100;
-    apple.y = rand() % 100;
 
 
     //Textures
@@ -246,9 +220,13 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     //border.setFillColor(Color::Black);
     border.setPosition((window.getSize().x - border.getSize().x) / 2, (window.getSize().y - border.getSize().y) / 2);
 
+    object apple;
+    apple.x = border.getPosition().x + rand() % int(border.getSize().x);
+    apple.y = border.getPosition().y + rand() % int(border.getSize().y);
+
     //Player Name
     Text playerNameText(playerName, Arial, 30);
-    playerNameText.setPosition(100,10);
+    playerNameText.setPosition(100, 10);
     playerNameText.setStyle(Text::Bold);
 
     //Score
@@ -258,12 +236,11 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     FloatRect scoreBounds = score.getLocalBounds();
     score.setPosition(600, 10);
 
+
     //Render Apple
-    RectangleShape squares(Vector2f(30, 30));
+    RectangleShape squares(Vector2f(20, 20));
     squares.setPosition(apple.x, apple.y);
     squares.setTexture(&appl);
-
-
 
     //Setup SNAKE(wemby)
     init_snake(&wemby.head, &wemby.tail);
@@ -278,16 +255,15 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         //Check if eat apple
         RectangleShape haed(Vector2f(20, 20));
         haed.setPosition(wemby.head->x, wemby.head->y);
-
         if (haed.getGlobalBounds().intersects(squares.getGlobalBounds())) {
             munch.stop();
             munch.play();
             grow(&wemby);
 
-            do {
-                apple.x = rand() % 700;
-                apple.y = rand() % 500;
-            } while (appleError(apple, wemby.head));
+            /*do{*/
+            apple.x = border.getPosition().x + rand() % int(border.getSize().x);
+            apple.y = border.getPosition().y + rand() % int(border.getSize().y);
+            /*} while (appleError(apple, wemby.head));*/
 
             sc++;
             score.setString("SCORE: " + to_string(sc));
@@ -298,10 +274,25 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         Vector2f head_size = haed.getSize();
         Vector2u window_size = window.getSize();
 
-        bool isEdged = (head_pos.x <= 0) || (head_pos.x + head_size.x >= window_size.x) || (head_pos.y <= 0) || (head_pos.y + head_size.y >= window_size.y);
+        bool isIntersect = false;
 
-        if (isEdged || isbitingSelf(&wemby)) {
+        // Check if the head intersects with the border
+        if (head_pos.x < border.getPosition().x ||
+            head_pos.x + head_size.x > border.getPosition().x + border.getSize().x ||
+            head_pos.y < border.getPosition().y ||
+            head_pos.y + head_size.y > border.getPosition().y + border.getSize().y) {
+            isIntersect = true;
+        }
+
+        if (isIntersect || isbitingSelf(&wemby)) {
             wemby.alive = false;
+            deadsound.play();
+            int result = gameOver(window);
+
+            if (result == 1)
+                return gameEngine(window, playerName);
+            else if (result == 2)
+                return sc;
         }
 
         //render
@@ -318,10 +309,16 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         window.display();
 
     }
-    deadsound.stop();
-    deadsound.play();
     return sc;
 }
+
+int gameOver(sf::RenderWindow& window) {
+
+    Font font;
+    if (!font.loadFromFile("pixeboy.ttf"))
+    {
+        return -1;
+    }
 
     Texture gobg;
     if (!gobg.loadFromFile("gameoverbg.png")) {
@@ -353,6 +350,14 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
             if (event.type == Event::MouseButtonPressed) {
                 Vector2i mousePos = Mouse::getPosition(window);
 
+                if (restart.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+                    return 1;
+                }
+                if (returnmm.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+                    return 2;
+                }
+            }
+        }
 
         window.clear();
         window.draw(bg);
@@ -377,7 +382,7 @@ void launchlogo(sf::RenderWindow& window) {
     stellar.setTexture(logo);
     stellar.setScale(0.7, 0.7);
     stellar.setPosition(5, 50);
-    
+
     window.draw(stellar);
     window.display();
     this_thread::sleep_for(std::chrono::seconds(2));
@@ -418,9 +423,6 @@ void launchlogo(sf::RenderWindow& window) {
 }
 
 void instructions(sf::RenderWindow& window) {
-    using namespace std;
-    using namespace sf;
-    
     Font pix;
     if (!pix.loadFromFile("pixeboy.ttf")) {
         return;
@@ -488,7 +490,7 @@ string entername(sf::RenderWindow& window, int score) {
     Font font;
     if (!font.loadFromFile("pixeboy.ttf"))
     {
-        return "error loading";
+        return "error loading font";
     }
 
     Color gray(128, 128, 128);
@@ -506,12 +508,12 @@ string entername(sf::RenderWindow& window, int score) {
     bg.setScale(1, 1);
 
     Text enterNameText("Enter Your Name:", font, 24);
-    enterNameText.setPosition(enterNameBox.getPosition().x + 10, enterNameBox.getPosition().y + 10);
+    enterNameText.setPosition(enterNameBox.getPosition().x + 20, enterNameBox.getPosition().y + 10);
 
     Text playerName("", font, 45);
     playerName.setFillColor(Color::Black);
-    playerName.setPosition(enterNameText.getPosition().x+80, enterNameText.getPosition().y-5);
-    
+    playerName.setPosition(enterNameText.getPosition().x + 80, enterNameText.getPosition().y - 5);
+
     Text back("CANCEL", font, 20);
     back.setFillColor(Color::White);
     back.setStyle(Text::Bold);
@@ -540,12 +542,20 @@ string entername(sf::RenderWindow& window, int score) {
                     }
                 }
             }
+            if (event.type == Event::MouseButtonPressed) {
+                Vector2i mousePos = Mouse::getPosition(window);
+
+                if (back.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+                    return "cancelled";
+                }
+            }
         }
 
         window.clear();
         window.draw(bg);
         window.draw(enterNameBox);
         window.draw(playerName);
+        window.draw(back);
         window.display();
     }
 }

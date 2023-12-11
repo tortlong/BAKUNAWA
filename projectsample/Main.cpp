@@ -8,7 +8,7 @@ int main()
 	RenderWindow window(sf::VideoMode(800, 600), "Bakunawa and the Infinite Moons");
 
 	Event event;
-	
+
 	//Load window icon
 	Image icon;
 	if (icon.loadFromFile("bakulogo.png")) {
@@ -73,7 +73,7 @@ int main()
 			//MENU - Title
 			Sprite menulogo;
 			menulogo.setTexture(logo);
-			menulogo.setScale(1,1);
+			menulogo.setScale(1, 1);
 			//menulogo.setPosition(Vector2f(220.f, 30.f));
 
 			RectangleShape bg(Vector2f(800, 600));
