@@ -15,20 +15,14 @@
 #include <algorithm>
 
 using namespace sf;
-struct object : public RectangleShape {
-public:
-    int x;
-    int y;
 
-    object();
-    object(RectangleShape);
-    object(int, int);
-};
-
-class node : public object{
+class node : public RectangleShape{
 public:
     node* back;
     node* front;
+
+    node(Vector2f);
+    void draw();
 };
 
 class snake {
@@ -39,11 +33,11 @@ public:
     bool alive;
 
     snake();
-    void move();
-    void grow();
-    void draw(sf::RenderWindow&);
-    bool isbitingSelf();
-    bool intersects(object);
+    void render(sf::RenderWindow&);
+    bool eats (RectangleShape);
+    void move ();
+    void grow ();
+    bool isbitingSelf ();
 };
 
 class difficulty {
@@ -59,8 +53,6 @@ struct scoreEntry {
 
 
 void setDirection(snake*);
-
-void appleCheck(snake*, object*);
 
 int gameEngine(sf::RenderWindow&, const std::string&);
 

@@ -3,27 +3,35 @@
 using namespace std;
 using namespace sf;
 
+
+node :: node (Vector2f pos) {
+    this->setPosition(pos);
+    this->setSize(Vector2f(20, 20));
+    back = nullptr;
+    front = nullptr;
+}
+
+void node :: draw() {
+    RectangleShape dr(this->getPosition());
+    dr.setSize(this->getSize());
+    dr.setFillColor(Color::Green);
+}
+
 snake :: snake() {
 
-    head = new node();
-    head->front = nullptr;
-
+    head = new node(Vector2f(50,60));
     node* sel = head;
 
     for (int i = 0; i < 10; i++) {
-        sel->back = new(node);
+
+        sel->setFillColor(Color::Green);
+
+        sel->back = new node(Vector2f(50,60));
         sel->back->front = sel;
         sel = sel->back;
-
-        sel->x = 50;
-        sel->y = 50;
     }
 
-    sel->back = nullptr;
-
-    head->x = 60;
-    head->y = 50;
-
+    head->setPosition(Vector2f(50, 70));
     tail = sel;
     alive = true;
     direction = 'd';
@@ -34,25 +42,23 @@ void snake :: move() {
     node* sel = tail;
 
     if (direction == 'w')
-        head->y -= 10;
+        head->move(Vector2f(0, -10));
     else if (direction == 'a')
-        head->x -= 10;
+        head->move(Vector2f(-10,0));
     else if (direction == 's')
-        head->y += 10;
+        head->move(Vector2f(0, 10));
     else if (direction == 'd')
-        head->x += 10;
+        head->move(Vector2f(10, 0));
 
     do {
-        sel->x = sel->front->x;
-        sel->y = sel->front->y;
+        sel->setPosition(sel->front->getPosition());
 
         sel = sel->front;
     } while (sel->front != nullptr);
 
 }
 
-void snake :: draw(sf::RenderWindow& window) {
-
+void snake :: render(sf::RenderWindow& window) {
 
     window.setFramerateLimit(90);
 
@@ -62,17 +68,12 @@ void snake :: draw(sf::RenderWindow& window) {
         return;
     }
 
-    //for rendering snake
-    RectangleShape squares(Vector2f(20, 20));
-    squares.setFillColor(Color::Green);
-    squares.setPosition(600, 400);
-    squares.setTexture(&snakeTex);
-
+    
     node* sel = head;
+    
     while (sel != nullptr) {
 
-        squares.setPosition(sel->x, sel->y);
-        window.draw(squares);
+        sel->draw();
 
         sel = sel->back;
     }
@@ -83,14 +84,12 @@ void snake :: grow() {
 
     for (int i = 0; i < 8; i++) {
 
-        node* nyo = new node();
+        node* nyo = new node(tail->getPosition());
         tail->back = nyo;
         tail->back->front = tail;
         tail->back->back = nullptr;
 
         tail = nyo;
-        tail->x = tail->front->x;
-        tail->y = tail->front->y;
     }
 
 }
@@ -115,37 +114,19 @@ void setDirection(snake* snek) {
 }
 
 bool snake :: isbitingSelf() {
-    RectangleShape haed(Vector2f(20, 20));
-    RectangleShape body(Vector2f(20, 20));
 
-    haed.setPosition(head->x,head->y);
-
-    node* sel = head->back->back->back->back;
+    node* sel = head->back->back->back->back->back->back->back;
     while (sel != nullptr) {
 
-        body.setPosition(sel->x, sel->y);
-
-        if (haed.getGlobalBounds().intersects(body.getGlobalBounds())) {
-            return true;
+        if (head->getGlobalBounds().intersects(sel->getGlobalBounds())) {
+            return false;
         }
         sel = sel->back;
     }
     return false;
 }
 
-object :: object () {
-    
-}
-object :: object (RectangleShape border){
-    x = border.getPosition().x + rand() % int(border.getSize().x);
-    y = border.getPosition().y + rand() % int(border.getSize().y);
-}
-object :: object(int a, int b) {
-    x = a;
-    y = b;
-}
-
-bool snake :: intersects(object apple){
+bool snake :: eats(RectangleShape apple){
 
     node* sel = head;
 
@@ -159,7 +140,6 @@ bool snake :: intersects(object apple){
 
     return 0;
 }
-
 
 int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     int sc = 0;
@@ -214,7 +194,11 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     //border.setFillColor(Color::Black);
     border.setPosition((window.getSize().x - border.getSize().x) / 2, (window.getSize().y - border.getSize().y) / 2);
 
-    object apple(border);
+    float border_x = border.getPosition().x + rand() % int(border.getSize().x);
+    float border_y = border.getPosition().y + rand() % int(border.getSize().y);
+    Vector2f border_pos(border_x, border_y);
+    RectangleShape apple (border_pos);
+    apple.setFillColor(Color::Green);
 
     //Player Name
     Text playerNameText(playerName, Arial, 30);
@@ -229,11 +213,6 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     score.setPosition(600, 10);
 
 
-    //Render Apple
-    RectangleShape squares(Vector2f(20, 20));
-    squares.setPosition(apple.x, apple.y);
-    squares.setTexture(&appl);
-
     //Setup SNAKE(wemby)
 
     while (wemby.alive) {
@@ -241,28 +220,23 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         //
         setDirection(&wemby);
         wemby.move();
-        squares.setPosition(apple.x, apple.y);
-
-        //Check if eat apple
-        RectangleShape haed(Vector2f(20, 20));
-        haed.setPosition(wemby.head->x, wemby.head->y);
-        if (haed.getGlobalBounds().intersects(squares.getGlobalBounds())) {
+ 
+        //grow
+        if (wemby.head->getGlobalBounds().intersects(apple.getGlobalBounds())) {
             munch.stop();
             munch.play();
             wemby.grow();
 
-            do{
-                apple.x = border.getPosition().x + rand() % int(border.getSize().x);
-                apple.y = border.getPosition().y + rand() % int(border.getSize().y);
-            } while (wemby.intersects(apple));
+            
+            apple.setPosition(border.getPosition().x + rand() % int(border.getSize().x), border.getPosition().y + rand() % int(border.getSize().y));
 
             sc++;
             score.setString("SCORE: " + to_string(sc));
         }
 
         //Check if dead
-        Vector2f head_pos = haed.getPosition();
-        Vector2f head_size = haed.getSize();
+        Vector2f head_pos = wemby.head->getPosition();
+        Vector2f head_size = wemby.head->getSize();
         Vector2u window_size = window.getSize();
 
         bool isIntersect = false;
@@ -290,8 +264,8 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
         window.clear();
         window.draw(background);
         window.draw(border);
-        wemby.draw(window);
-        window.draw(squares);
+        wemby.render(window);
+        window.draw(apple);
         window.draw(playerNameText);
         window.draw(score);
 
@@ -500,8 +474,10 @@ string entername(sf::RenderWindow& window, int score) {
                 }
             }
         }
-
+        node* gr = new node(Vector2f(30,30));
+        gr->setFillColor(Color::Red);
         window.clear();
+        gr->draw();
         window.draw(enterNameBox);
         window.draw(enterNameText);
         window.draw(playerName);

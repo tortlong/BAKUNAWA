@@ -24,3 +24,11 @@ Gelo 25
 asd 8
 gelo 6
 ads 0
+asdas 1
+asd 1
+asd 1
+sda 1
+asd 1
+sad 1
+asd 1
+as 1
