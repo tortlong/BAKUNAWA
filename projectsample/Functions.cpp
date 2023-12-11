@@ -3,7 +3,7 @@
 using namespace std;
 using namespace sf;
 
-void move(node* head, node* tail, char direction) {
+void move(node* head, node* tail, char direction){
 
     node* sel = tail;
 
@@ -13,15 +13,15 @@ void move(node* head, node* tail, char direction) {
         head->x -= 10;
     else if (direction == 's')
         head->y += 10;
-    else if (direction == 'd')
+    else if (direction == 'd') 
         head->x += 10;
 
-    do {
+    do{
         sel->x = sel->front->x;
         sel->y = sel->front->y;
 
         sel = sel->front;
-    } while (sel->front != nullptr);
+    } while(sel->front != nullptr);
 
 }
 
@@ -78,24 +78,25 @@ void draw_snake(node* sel, sf::RenderWindow& window) {
 
 }
 
-void setDirection(snake* snek) {
-    if (Keyboard::isKeyPressed(Keyboard::W)) {
+void setDirection(snake* snek){
+    if(Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::Up)){
         if (snek->direction != 's')
             snek->direction = 'w';
     }
-    if (Keyboard::isKeyPressed(Keyboard::A)) {
+    if(Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::Left)){
         if (snek->direction != 'd')
             snek->direction = 'a';
     }
-    if (Keyboard::isKeyPressed(Keyboard::S)) {
+    if(Keyboard::isKeyPressed(Keyboard::S) || Keyboard::isKeyPressed(Keyboard::Down)){
         if (snek->direction != 'w')
             snek->direction = 's';
     }
-    if (Keyboard::isKeyPressed(Keyboard::D)) {
+    if(Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::Right)){
         if (snek->direction != 'a')
             snek->direction = 'd';
     }
 }
+
 
 void grow(snake* snek) {
 
@@ -131,14 +132,16 @@ bool isbitingSelf(snake* snek) {
     return false;
 }
 
-int appleError(object apol, node* sel) {
+int moonError(object apol, node* sel) {
     RectangleShape apple(Vector2f(apol.x, apol.y));
 
-    while (sel->back != nullptr) {
+    while (sel != nullptr) {
 
         RectangleShape head(Vector2f(sel->x, sel->y));
 
-        if (head.getGlobalBounds().intersects(apple.getGlobalBounds())) {
+        //if (apol.x < 0 || apol.x >  || apol.y < 0 || apol.y > borderHei)
+
+        if (head.getGlobalBounds().intersects(apple.getGlobalBounds())) { // mag loop
             return 1;
         }
         sel = sel->back;
@@ -160,7 +163,7 @@ void introStory(sf::RenderWindow& window) {
     window.clear();
     window.draw(bg);
     window.display();
-    sleep(seconds(10));
+    sleep(seconds(1));
 }
 
 int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
@@ -261,9 +264,9 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
             grow(&wemby);
 
             /*do{*/
-            apple.x = border.getPosition().x + rand() % int(border.getSize().x);
-            apple.y = border.getPosition().y + rand() % int(border.getSize().y);
-            /*} while (appleError(apple, wemby.head));*/
+            apple.x = border.getPosition().x + 20 + rand() % int(border.getSize().x - 40);
+            apple.y = border.getPosition().y + 20 + rand() % int(border.getSize().y - 40);
+            /*} while (moonError(apple, wemby.head));*/
 
             sc++;
             score.setString("SCORE: " + to_string(sc));
@@ -422,6 +425,79 @@ void launchlogo(sf::RenderWindow& window) {
     window.display();
 }
 
+
+
+void launchintro(sf::RenderWindow& window) {
+    Music music;
+    if (!music.openFromFile("introserpent.wav")) {
+        return;
+    }
+
+    Texture logo;
+    if (!logo.loadFromFile("bakunawalogo.png")) {
+        return;
+    }
+
+    Sprite stellar;
+    stellar.setTexture(logo);
+
+    // Set the scale to make the logo the same size as the window
+    float xScale = static_cast<float>(window.getSize().x) / logo.getSize().x;
+    float yScale = static_cast<float>(window.getSize().y) / logo.getSize().y;
+
+    stellar.setScale(xScale, yScale);
+
+    // Position the logo at the top-left corner
+    stellar.setPosition(0, 0);
+
+    window.draw(stellar);
+    window.display();
+
+    music.play();  // Start playing the music
+
+    sf::Clock clock;
+    sf::Time elapsedTime;
+    const float fadeDuration = 5.0f;  // Set the duration of the fade in seconds
+
+    bool isFading = true;
+
+    while (isFading) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
+                isFading = false;  // Exit the loop if the space bar is pressed
+            }
+        }
+
+        // Check if the specified duration has passed, then exit the loop
+        elapsedTime = clock.getElapsedTime();
+        if (elapsedTime.asSeconds() >= fadeDuration) {
+            isFading = false;
+        }
+
+        Color spriteColor = stellar.getColor();
+
+        // Decrease the alpha value by a small amount
+        spriteColor.a = static_cast<Uint8>(std::max(0, static_cast<int>(spriteColor.a - 0.5f)));
+        stellar.setColor(spriteColor);
+
+        window.clear();
+        window.draw(stellar);
+        window.display();
+
+        this_thread::sleep_for(std::chrono::milliseconds(10));  // Adjust the sleep duration for a slower fade
+    }
+
+    music.stop();
+    window.clear();
+    window.display();
+}
+
+
 void instructions(sf::RenderWindow& window) {
     Font pix;
     if (!pix.loadFromFile("pixeboy.ttf")) {
@@ -560,26 +636,59 @@ string entername(sf::RenderWindow& window, int score) {
     }
 }
 
-void saveScore(const std::string& playerName, int score) {
-    std::ofstream leaderboardFile("leaderboard.txt", std::ios::app);
 
-    if (leaderboardFile.is_open()) {
-        leaderboardFile << playerName << " " << score << "\n";
-        leaderboardFile.close();
+void saveScore(const std::string& playerName, int score) {
+    // Read existing entries
+    std::ifstream leaderboardFileIn("leaderboard.txt");
+    std::vector<scoreEntry> leaderboard;
+
+    std::string name;
+    int existingScore;
+
+    while (leaderboardFileIn >> name >> existingScore) {
+        leaderboard.push_back({ name, existingScore });
+    }
+
+    leaderboardFileIn.close();
+
+    // Add the new score
+    leaderboard.push_back({ playerName, score });
+
+    // Sort the leaderboard entries by score in descending order
+    std::sort(leaderboard.begin(), leaderboard.end(), [](const scoreEntry& a, const scoreEntry& b) {
+        return a.score > b.score;
+        });
+
+    // Keep only the top 10 entries
+    leaderboard.resize(std::min(static_cast<int>(leaderboard.size()), 10));
+
+    // Write the updated leaderboard to the file
+    std::ofstream leaderboardFileOut("leaderboard.txt");
+
+    if (leaderboardFileOut.is_open()) {
+        for (const auto& entry : leaderboard) {
+            leaderboardFileOut << entry.name << " " << entry.score << "\n";
+        }
+        leaderboardFileOut.close();
     }
     else {
         return;
     }
 }
 
+
+
 bool compareScores(const scoreEntry& a, const scoreEntry& b) {
     return a.score > b.score;
 }
 
-void displayLeaderboard(sf::RenderWindow& window) {
+void displayLeaderboard(sf::RenderWindow& window, sf::Music& bgmusic) {
     std::ifstream leaderboardFile("leaderboard.txt");
 
     if (leaderboardFile.is_open()) {
+        
+        bgmusic.play();
+
         std::vector<scoreEntry> leaderboard;
 
         std::string name;
@@ -642,6 +751,7 @@ void displayLeaderboard(sf::RenderWindow& window) {
                     Vector2i mousePos = Mouse::getPosition(window);
 
                     if (goBack.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+                        bgmusic.stop();
                         return;
                     }
                 }

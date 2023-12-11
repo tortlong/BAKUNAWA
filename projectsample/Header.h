@@ -9,10 +9,11 @@
 #include <windows.h>
 #include <conio.h>
 #include <chrono>
-#include <thread>
+#include <thread>   
 #include <fstream>
 #include <vector>
 #include <algorithm>
+
 
 class node {
 public:
@@ -67,6 +68,8 @@ int gameOver(sf::RenderWindow&);
 
 void launchlogo(sf::RenderWindow&);
 
+void launchintro(sf::RenderWindow& window);
+
 std::string entername(sf::RenderWindow&, int);
 
 void instructions(sf::RenderWindow&);
@@ -75,7 +78,7 @@ void saveScore(const std::string&, int);
 
 bool compareScores(const scoreEntry&, const scoreEntry&);
 
-void displayLeaderboard(sf::RenderWindow&);
+void displayLeaderboard(sf::RenderWindow& window, sf::Music& bgmusic);
 
 void introStory(sf::RenderWindow&);
 

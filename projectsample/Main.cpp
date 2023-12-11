@@ -29,9 +29,15 @@ int main()
 	}
 
 	Music bgmusic;
-	if (!bgmusic.openFromFile("power.wav")) {
+	if (!bgmusic.openFromFile("Bakunawa.wav")) {
 		return -1;
 	}
+
+	Music lbmusic;
+	if (!lbmusic.openFromFile("power.wav")) {
+		return -1;
+	}
+
 	Music changetab;
 	if (!changetab.openFromFile("retrochange.wav")) {
 		return -1;
@@ -91,7 +97,7 @@ int main()
 			hiscore.setPosition(Vector2f(30.f, 10.f));
 
 			//MENU - Options
-			Text play("PLAY", arial, 40);
+			Text play("PLAYER", arial, 40);
 			play.setFillColor(Color::White);
 			play.setStyle(Text::Bold);
 			FloatRect playBounds = play.getLocalBounds();
@@ -175,7 +181,7 @@ int main()
 
 				if (leaderbrd.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					bgmusic.stop();
-					displayLeaderboard(window);
+					displayLeaderboard(window,lbmusic);
 				}
 				if (howto.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					bgmusic.stop();
