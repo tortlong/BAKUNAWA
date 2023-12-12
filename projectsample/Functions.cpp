@@ -8,13 +8,13 @@ void move(node* head, node* tail, char direction){
     node* sel = tail;
 
     if (direction == 'w')
-        head->y -= 10;
+        head->y -= 12;
     else if (direction == 'a')
-        head->x -= 10;
+        head->x -= 12;
     else if (direction == 's')
-        head->y += 10;
+        head->y += 12;
     else if (direction == 'd') 
-        head->x += 10;
+        head->x += 12;
 
     do{
         sel->x = sel->front->x;
@@ -134,15 +134,16 @@ bool isbitingSelf(snake* snek) {
 
 
 int moonError(object apol, node* sel) {
-    RectangleShape apple(Vector2f(apol.x, apol.y));
+    RectangleShape moon(Vector2f(20, 20));
+    moon.setPosition(apol.x, apol.y);
+    sel = sel->back->back->back->back;
+
 
     while (sel != nullptr) {
 
-        RectangleShape head(Vector2f(sel->x, sel->y));
-        RectangleShape body(Vector2f(20, 20));
-        /*body.setPosition(sel->x, sel->y);*/
-
-        if (head.getGlobalBounds().intersects(apple.getGlobalBounds())) { // mag loop
+        RectangleShape head(Vector2f(20,20));
+        head.setPosition(sel->x, sel->y);
+        if (head.getGlobalBounds().intersects(moon.getGlobalBounds())) { // mag loop
             return 1;
         }
 
@@ -335,7 +336,7 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
             do {
                 apple.x = border.getPosition().x + 20 + rand() % int(border.getSize().x - 40);
                 apple.y = border.getPosition().y + 20 + rand() % int(border.getSize().y - 40);
-            } while (!moonError(apple, wemby.head));
+            } while (moonError(apple, wemby.head));
 
             sc++;
             score.setString("SCORE: " + to_string(sc));
