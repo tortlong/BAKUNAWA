@@ -139,13 +139,16 @@ int moonError(object apol, node* sel) {
     while (sel != nullptr) {
 
         RectangleShape head(Vector2f(sel->x, sel->y));
+        RectangleShape body(Vector2f(20, 20));
+        /*body.setPosition(sel->x, sel->y);*/
 
         if (head.getGlobalBounds().intersects(apple.getGlobalBounds())) { // mag loop
             return 1;
         }
+
         sel = sel->back;
     }
-
+    
     return 0;
 }
 
@@ -214,7 +217,7 @@ void introStory(sf::RenderWindow& window) {
             // Calculate the elapsed time in seconds for the second picture
             auto duration2 = std::chrono::duration_cast<std::chrono::seconds>(currentTime - startTime2).count();
 
-            if (duration2 >= 1) {
+            if (duration2 >= 8) {
                 return;  // Exit the function after 3 seconds of showing the second picture
             }
         }
@@ -222,7 +225,7 @@ void introStory(sf::RenderWindow& window) {
             // Calculate the elapsed time in seconds for the first picture
             auto duration1 = std::chrono::duration_cast<std::chrono::seconds>(currentTime - startTime1).count();
 
-            if (duration1 >= 1) { 
+            if (duration1 >= 7) { 
                 showSecondPicture = true;
                 window.clear();
                 window.draw(bg2);
@@ -260,11 +263,11 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
 
     //SFX
     Music munch;
-    if (!munch.openFromFile("apple.wav")) {
+    if (!munch.openFromFile("Eat.wav")) {
         return -1;
     }
     Music deadsound;
-    if (!deadsound.openFromFile("over.wav")) {
+    if (!deadsound.openFromFile("Died.wav")) {
         return -1;
     }
     

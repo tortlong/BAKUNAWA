@@ -29,12 +29,17 @@ int main()
 	}
 
 	Music bgmusic;
-	if (!bgmusic.openFromFile("Mainmenu.wav")) {
+	if (!bgmusic.openFromFile("Bakunawa.wav")) {
 		return -1;
 	}
 
 	Music lbmusic;
 	if (!lbmusic.openFromFile("board.wav")) {
+		return -1;
+	}
+
+	Music gameplayMusic;
+	if (!gameplayMusic.openFromFile("gameplay.wav")) {
 		return -1;
 	}
 
@@ -170,13 +175,18 @@ int main()
 
 				if (play.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					bgmusic.stop();
+					
 					string playerName = entername(window, score);
 					if (playerName != "cancelled") {
 						playsfx.play();
 						introStory(window);
+						gameplayMusic.play();
 						score = gameEngine(window, playerName);
+						gameplayMusic.stop();
 						saveScore(playerName, score);
 					}
+
+					
 				}
 
 				if (leaderbrd.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
