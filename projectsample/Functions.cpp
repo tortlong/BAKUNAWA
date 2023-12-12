@@ -453,8 +453,7 @@ void launchlogo(sf::RenderWindow& window) {
     }
     Sprite stellar;
     stellar.setTexture(logo);
-    stellar.setScale(0.7, 0.7);
-    stellar.setPosition(5, 50);
+    stellar.setScale(1, 1);
 
     window.draw(stellar);
     window.display();
