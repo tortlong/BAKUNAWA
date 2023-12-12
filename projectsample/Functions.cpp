@@ -516,10 +516,10 @@ void instructions(sf::RenderWindow& window, sf::Music& bgmusic) {
     goBack.setTexture(backbutton);
     goBack.setScale(2, 2);
     goBack.setPosition(30, 10);
+    bgmusic.setLoop(true);
+    bgmusic.play();
 
     while (window.isOpen()) {
-        bgmusic.setLoop(true);
-        bgmusic.play();
         Event event;
         while (window.pollEvent(event)) {
             if (event.type == Event::Closed) {
