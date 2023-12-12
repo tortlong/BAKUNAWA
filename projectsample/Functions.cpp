@@ -151,20 +151,90 @@ int moonError(object apol, node* sel) {
 }
 
 void introStory(sf::RenderWindow& window) {
-    Texture introbg;
-    if (!introbg.loadFromFile("intro.png")) {
+    sf::Texture introbg1, introbg2;
+    if (!introbg1.loadFromFile("story1.png") || !introbg2.loadFromFile("story2.png")) {
         return;
     }
 
-    Sprite bg;
-    bg.setTexture(introbg);
-    bg.setScale(1, 1);
+    sf::Music music;
+    if (!music.openFromFile("story.wav")) {
+        return;
+    }
+
+    sf::Sprite bg1, bg2;
+    bg1.setTexture(introbg1);
+    bg1.setScale(1, 1);
+
+    bg2.setTexture(introbg2);
+    bg2.setScale(1, 1);
 
     window.clear();
-    window.draw(bg);
+    window.draw(bg1);
     window.display();
-    sleep(seconds(1));
+
+    sf::Event event;
+
+    bool showSecondPicture = false;
+    bool spacePressed = false;
+
+    // Play the intro music
+    music.play();
+
+    // Get the current time for the first picture
+    auto startTime1 = std::chrono::steady_clock::now();
+
+    // Get the current time for the second picture
+    auto startTime2 = std::chrono::steady_clock::now();
+
+    while (window.isOpen() && (music.getStatus() == sf::Music::Playing) && !spacePressed) {
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+            else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
+                if (showSecondPicture) {
+                    music.stop();  // Stop the music
+                    spacePressed = true;
+                    return;        // Skip the intro on the second space bar press
+                }
+                else {
+                    showSecondPicture = true;
+                    window.clear();
+                    window.draw(bg2);
+                    window.display();
+                    // Get the current time for the second picture
+                    startTime2 = std::chrono::steady_clock::now();
+                }
+            }
+        }
+
+        // Get the current time
+        auto currentTime = std::chrono::steady_clock::now();
+
+        if (showSecondPicture) {
+            // Calculate the elapsed time in seconds for the second picture
+            auto duration2 = std::chrono::duration_cast<std::chrono::seconds>(currentTime - startTime2).count();
+
+            if (duration2 >= 1) {
+                return;  // Exit the function after 3 seconds of showing the second picture
+            }
+        }
+        else {
+            // Calculate the elapsed time in seconds for the first picture
+            auto duration1 = std::chrono::duration_cast<std::chrono::seconds>(currentTime - startTime1).count();
+
+            if (duration1 >= 1) { 
+                showSecondPicture = true;
+                window.clear();
+                window.draw(bg2);
+                window.display();
+                // Get the current time for the second picture
+                startTime2 = std::chrono::steady_clock::now();
+            }
+        }
+    }
 }
+
 
 int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     int sc = 0;
@@ -424,79 +494,6 @@ void launchlogo(sf::RenderWindow& window) {
     window.clear();
     window.display();
 }
-
-
-
-void launchintro(sf::RenderWindow& window) {
-    Music music;
-    if (!music.openFromFile("introserpent.wav")) {
-        return;
-    }
-
-    Texture logo;
-    if (!logo.loadFromFile("bakunawalogo.png")) {
-        return;
-    }
-
-    Sprite stellar;
-    stellar.setTexture(logo);
-
-    // Set the scale to make the logo the same size as the window
-    float xScale = static_cast<float>(window.getSize().x) / logo.getSize().x;
-    float yScale = static_cast<float>(window.getSize().y) / logo.getSize().y;
-
-    stellar.setScale(xScale, yScale);
-
-    // Position the logo at the top-left corner
-    stellar.setPosition(0, 0);
-
-    window.draw(stellar);
-    window.display();
-
-    music.play();  // Start playing the music
-
-    sf::Clock clock;
-    sf::Time elapsedTime;
-    const float fadeDuration = 5.0f;  // Set the duration of the fade in seconds
-
-    bool isFading = true;
-
-    while (isFading) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
-                isFading = false;  // Exit the loop if the space bar is pressed
-            }
-        }
-
-        // Check if the specified duration has passed, then exit the loop
-        elapsedTime = clock.getElapsedTime();
-        if (elapsedTime.asSeconds() >= fadeDuration) {
-            isFading = false;
-        }
-
-        Color spriteColor = stellar.getColor();
-
-        // Decrease the alpha value by a small amount
-        spriteColor.a = static_cast<Uint8>(std::max(0, static_cast<int>(spriteColor.a - 0.5f)));
-        stellar.setColor(spriteColor);
-
-        window.clear();
-        window.draw(stellar);
-        window.display();
-
-        this_thread::sleep_for(std::chrono::milliseconds(10));  // Adjust the sleep duration for a slower fade
-    }
-
-    music.stop();
-    window.clear();
-    window.display();
-}
-
 
 void instructions(sf::RenderWindow& window) {
     Font pix;

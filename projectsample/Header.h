@@ -14,7 +14,6 @@
 #include <vector>
 #include <algorithm>
 
-
 class node {
 public:
     int x, y;
@@ -67,8 +66,6 @@ int gameEngine(sf::RenderWindow&, const std::string&);
 int gameOver(sf::RenderWindow&);
 
 void launchlogo(sf::RenderWindow&);
-
-void launchintro(sf::RenderWindow& window);
 
 std::string entername(sf::RenderWindow&, int);
 

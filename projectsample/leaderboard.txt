@@ -1,10 +1,10 @@
+merits 19
 angel 6
 nix 5
 l 4
 landback 4
 nico 3
 maerich 3
+s 3
 l 2
 kate 2
-l 1
-lo 1
