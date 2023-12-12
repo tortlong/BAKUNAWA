@@ -132,14 +132,13 @@ bool isbitingSelf(snake* snek) {
     return false;
 }
 
+
 int moonError(object apol, node* sel) {
     RectangleShape apple(Vector2f(apol.x, apol.y));
 
     while (sel != nullptr) {
 
         RectangleShape head(Vector2f(sel->x, sel->y));
-
-        //if (apol.x < 0 || apol.x >  || apol.y < 0 || apol.y > borderHei)
 
         if (head.getGlobalBounds().intersects(apple.getGlobalBounds())) { // mag loop
             return 1;
@@ -235,15 +234,12 @@ void introStory(sf::RenderWindow& window) {
     }
 }
 
-
 int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     int sc = 0;
 
     snake wemby;
     wemby.alive = true;
     wemby.direction = 'd';
-
-
 
     //Textures
     Texture appl;
@@ -271,7 +267,7 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     if (!deadsound.openFromFile("over.wav")) {
         return -1;
     }
-
+    
     //Fonts
     Font Arial;
     if (!Arial.loadFromFile("pixeboy.ttf")) {
@@ -294,8 +290,8 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     border.setPosition((window.getSize().x - border.getSize().x) / 2, (window.getSize().y - border.getSize().y) / 2);
 
     object apple;
-    apple.x = border.getPosition().x + rand() % int(border.getSize().x);
-    apple.y = border.getPosition().y + rand() % int(border.getSize().y);
+    apple.x = border.getPosition().x + 20 + rand() % int(border.getSize().x - 40);
+    apple.y = border.getPosition().y + 20 + rand() % int(border.getSize().y - 40);
 
     //Player Name
     Text playerNameText(playerName, Arial, 30);
@@ -333,10 +329,10 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
             munch.play();
             grow(&wemby);
 
-            /*do{*/
-            apple.x = border.getPosition().x + 20 + rand() % int(border.getSize().x - 40);
-            apple.y = border.getPosition().y + 20 + rand() % int(border.getSize().y - 40);
-            /*} while (moonError(apple, wemby.head));*/
+            do {
+                apple.x = border.getPosition().x + 20 + rand() % int(border.getSize().x - 40);
+                apple.y = border.getPosition().y + 20 + rand() % int(border.getSize().y - 40);
+            } while (!moonError(apple, wemby.head));
 
             sc++;
             score.setString("SCORE: " + to_string(sc));
@@ -384,6 +380,7 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     }
     return sc;
 }
+
 
 int gameOver(sf::RenderWindow& window) {
 
@@ -495,7 +492,8 @@ void launchlogo(sf::RenderWindow& window) {
     window.display();
 }
 
-void instructions(sf::RenderWindow& window) {
+void instructions(sf::RenderWindow& window, sf::Music& bgmusic) {
+    
     Font pix;
     if (!pix.loadFromFile("pixeboy.ttf")) {
         return;
@@ -520,24 +518,9 @@ void instructions(sf::RenderWindow& window) {
     goBack.setScale(2, 2);
     goBack.setPosition(30, 10);
 
-    /*Text back("BACK", pix, 20);
-    back.setFillColor(Color::White);
-    back.setStyle(Text::Bold);
-    back.setPosition(30, 20);*/
-
-    /*Text contr("CONTROLS", pix, 40);
-    contr.setFillColor(Color::Yellow);
-    contr.setStyle(Text::Bold);
-    FloatRect contrBounds = contr.getLocalBounds();
-    contr.setPosition(window.getSize().x / 2 - contrBounds.width / 2, window.getSize().y / 2 -200);
-
-    Text howto("HOW TO PLAY", pix, 40);
-    howto.setFillColor(Color::Yellow);
-    howto.setStyle(Text::Bold);
-    FloatRect howtoBounds = howto.getLocalBounds();
-    howto.setPosition(window.getSize().x / 2 - howtoBounds.width / 2, window.getSize().y / 2 - 10);*/
-
     while (window.isOpen()) {
+        bgmusic.setLoop(true);
+        bgmusic.play();
         Event event;
         while (window.pollEvent(event)) {
             if (event.type == Event::Closed) {
@@ -548,6 +531,7 @@ void instructions(sf::RenderWindow& window) {
             Vector2i mousePos = Mouse::getPosition(window);
 
             if (goBack.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+                bgmusic.stop();
                 return;
             }
         }
@@ -683,7 +667,7 @@ void displayLeaderboard(sf::RenderWindow& window, sf::Music& bgmusic) {
     std::ifstream leaderboardFile("leaderboard.txt");
 
     if (leaderboardFile.is_open()) {
-        
+        bgmusic.setLoop(true);
         bgmusic.play();
 
         std::vector<scoreEntry> leaderboard;
@@ -703,12 +687,6 @@ void displayLeaderboard(sf::RenderWindow& window, sf::Music& bgmusic) {
         // Display the leaderboard entries
         Font font;
         if (font.loadFromFile("pixeboy.ttf")) {
-
-            /*Text ldtitle("LEADERBOARD", font, 40);
-            ldtitle.setFillColor(Color::Yellow);
-            ldtitle.setStyle(Text::Bold);
-            FloatRect ldtitleBounds = ldtitle.getLocalBounds();
-            ldtitle.setPosition(window.getSize().x / 2 - ldtitleBounds.width / 2, window.getSize().y / 2 - 200);*/
 
             Texture backbutton;
             if (!backbutton.loadFromFile("back.png")) {

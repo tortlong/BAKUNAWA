@@ -29,12 +29,12 @@ int main()
 	}
 
 	Music bgmusic;
-	if (!bgmusic.openFromFile("Bakunawa.wav")) {
+	if (!bgmusic.openFromFile("Mainmenu.wav")) {
 		return -1;
 	}
 
 	Music lbmusic;
-	if (!lbmusic.openFromFile("power.wav")) {
+	if (!lbmusic.openFromFile("board.wav")) {
 		return -1;
 	}
 
@@ -185,7 +185,7 @@ int main()
 				}
 				if (howto.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
 					bgmusic.stop();
-					instructions(window);
+					instructions(window, lbmusic);
 				}
 
 				if (quit.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {

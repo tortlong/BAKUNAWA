@@ -69,13 +69,13 @@ void launchlogo(sf::RenderWindow&);
 
 std::string entername(sf::RenderWindow&, int);
 
-void instructions(sf::RenderWindow&);
-
 void saveScore(const std::string&, int);
 
 bool compareScores(const scoreEntry&, const scoreEntry&);
 
 void displayLeaderboard(sf::RenderWindow& window, sf::Music& bgmusic);
+
+void instructions(sf::RenderWindow& window, sf::Music& bgmusic);
 
 void introStory(sf::RenderWindow&);
 
