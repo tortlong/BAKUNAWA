@@ -29,6 +29,7 @@ public:
 
 class snake {
 public:
+
     node* head;
     node* tail;
     char direction;
