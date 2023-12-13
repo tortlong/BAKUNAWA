@@ -155,7 +155,7 @@ int moonError(object apol, node* sel) {
 
 void introStory(sf::RenderWindow& window) {
     sf::Texture introbg1, introbg2;
-    if (!introbg1.loadFromFile("story1.png") || !introbg2.loadFromFile("story2.png")) {
+    if (!introbg1.loadFromFile("s1.png") || !introbg2.loadFromFile("s2.png")) {
         return;
     }
 
