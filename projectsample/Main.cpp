@@ -96,10 +96,10 @@ int main()
 			bgmusicbutton.setPosition(Vector2f(730.f, 15.f));
 
 			//MENU - Highscore
-			Text hiscore("HI-SCORE: " + to_string(score), arial, 25);
-			hiscore.setFillColor(Color::White);
-			FloatRect hiscoreBounds = hiscore.getLocalBounds();
-			hiscore.setPosition(Vector2f(30.f, 10.f));
+			//Text hiscore("HI-SCORE: " + to_string(score), arial, 25);
+			//hiscore.setFillColor(Color::White);
+			//FloatRect hiscoreBounds = hiscore.getLocalBounds();
+			//hiscore.setPosition(Vector2f(30.f, 10.f));
 
 			//MENU - Options
 			Text play("PLAYER", arial, 40);
@@ -217,7 +217,7 @@ int main()
 			window.draw(bg);
 			window.draw(menulogo);
 			window.draw(play);
-			window.draw(hiscore);
+			//window.draw(hiscore);
 			window.draw(bgmusicbutton);
 			window.draw(leaderbrd);
 			window.draw(howto);

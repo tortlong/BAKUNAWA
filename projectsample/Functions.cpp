@@ -385,7 +385,6 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     return sc;
 }
 
-
 int gameOver(sf::RenderWindow& window) {
 
     Font font;
