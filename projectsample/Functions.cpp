@@ -256,11 +256,11 @@ int gameEngine(sf::RenderWindow& window, const std::string& playerName) {
     {
         return -1;
     }
-    Texture logo;
-    if (!logo.loadFromFile("1.png"))
-    {
-        return -1;
-    }
+    //Texture logo;
+    //if (!logo.loadFromFile("1.png"))
+    //{
+      //  return -1;
+    //}
 
     //SFX
     Music munch;

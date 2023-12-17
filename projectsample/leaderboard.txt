@@ -5,6 +5,6 @@ mau 24
 l 22
 Steve 22
 merits 19
+l  7
 mikogwapo 5
 k 5
-l -1
